@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::hash::{Hash, Hasher};
 
 use xxhash_rust::xxh3::xxh3_64_with_seed;

@@ -3,8 +3,7 @@
 use std::hash::Hash;
 use crate::owl::node_components::Link;
 
-pub const NULL_IDX: u16 = 65535; 
-
+use crate::owl::node::NULL_IDX;
 pub struct Entity<K,V>
 where K:Hash+Ord+PartialOrd+Eq+PartialEq{
     /// Key

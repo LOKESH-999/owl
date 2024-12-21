@@ -5,7 +5,7 @@
  mod link;
  mod hash_store;
  mod entity;
-
+ mod data_line;
 use crate::owl::array::Array;
 use std::hash::Hash;
 
@@ -15,10 +15,8 @@ pub use empty_line::EmptyLine;
 pub use link::Link;
 pub use entity::Entity;
 pub use hash_store::HashTable;
+pub use data_line::DataLine;
 
-pub struct DataLine<Key:Hash+Ord+PartialOrd+Eq+PartialEq,Val>{
-    data:Array<Entity<Key,Val>>
-}
 pub struct Meta{
     /// Store no of reads
     pub reads:u32,

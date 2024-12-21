@@ -2,6 +2,7 @@
 
 use std::hash::Hash;
 use crate::owl::node_components::{DataLine, HashTable,EmptyLine};
+pub const NULL_IDX: u16 = 65535; 
 
 pub struct Node<Key:Hash+Ord+PartialOrd+Eq+PartialEq, Val>{
     /// stores the data
