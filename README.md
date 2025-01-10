@@ -1,3 +1,5 @@
+#Currently Paused due to personal problems
+
 # Owl Cache System
 
 **Owl** is a high-performance, memory-efficient caching system designed to optimize data retrieval and storage using a custom consistency ring, eviction policies, and compact memory structures. It employs advanced techniques such as hash density analysis, linked list-based eviction (LRU/MRU), and efficient memory management to ensure that frequently accessed data is available with minimal latency.
