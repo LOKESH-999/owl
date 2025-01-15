@@ -2,7 +2,7 @@
 
 use std::{
     alloc::{alloc, dealloc, Layout}, // For dynamic memory allocation and deallocation
-    mem::forget,                     // Prevents dropping of ownership
+    mem::{forget, ManuallyDrop},                     // Prevents dropping of ownership
     ptr::NonNull                     // Non-nullable pointer type
 };
 
@@ -65,10 +65,16 @@ impl<T> Array<T> {
     /// # Returns
     /// The value at the given index.
     #[inline]
-    pub unsafe  fn get(&mut self, idx: usize) -> T {
-        unsafe { self.ptr.add(idx).read() } // Dereference and read the value
+    pub unsafe  fn get_unchecked(&self, idx: usize) -> ManuallyDrop<T> {
+        unsafe { ((self.ptr.add(idx)).as_ptr() as *mut ManuallyDrop<T>).read() } // Dereference and read the value
     }
 
+    #[inline]
+    pub unsafe fn get_mut(&self,idx: usize)->&mut T{
+        unsafe {
+            self.ptr.add(idx).as_mut()
+        }
+    }
     /// Sets a value at a specific index.
     ///
     /// # Safety
@@ -78,7 +84,7 @@ impl<T> Array<T> {
     /// * `data` - The value to write.
     /// * `idx` - The index to write to.
     #[inline]
-    pub unsafe fn set(&mut self, data: T, idx: usize) {
+    pub unsafe fn set_unchecked(&mut self, data: T, idx: usize) {
         self.ptr.add(idx).write(data); // Write the value at the given index
     }
 
@@ -112,7 +118,7 @@ impl<T> Drop for Array<T> {
 
 impl<T> Array<T> {
     /// Returns the raw pointer to the memory block.
-    pub fn as_ptr(&mut self) -> *mut T {
+    pub fn as_ptr(&self) -> *mut T {
         self.ptr.as_ptr()
     }
 }

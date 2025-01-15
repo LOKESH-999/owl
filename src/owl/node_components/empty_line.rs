@@ -1,7 +1,16 @@
 #![allow(unused)]
 
+use std::mem::ManuallyDrop;
 // Importing the custom `Array` implementation
 use crate::owl::array::Array;
+
+use std::sync::atomic::{
+    AtomicUsize,
+    Ordering::{
+        Relaxed,
+        SeqCst
+    }
+};
 
 /// Represents a line to store the indices of empty blocks.
 /// This enables fast allocation of memory blocks when needed.
@@ -10,7 +19,7 @@ pub struct EmptyLine {
     arr: Array<u16>,
 
     // Number of empty blocks currently available.
-    len: usize,
+    len: AtomicUsize,
 }
 
 impl EmptyLine {
@@ -24,7 +33,7 @@ impl EmptyLine {
     pub fn new(size: usize) -> Self {
         EmptyLine {
             arr: Array::new(size), // Initialize the array with the given size
-            len: size,            // Set the size of the array
+            len: AtomicUsize::new(size),            // Set the size of the array
         }
     }
 
@@ -35,10 +44,10 @@ impl EmptyLine {
     /// of the empty blocks in the `DataLine`.
     pub fn init(&mut self) {
         // Populate the array with sequential values
-        for value in 0..self.len {
+        for value in 0..self.len.load(Relaxed) {
             unsafe {
                 // Set each index with the value itself
-                self.arr.set(value as u16, value);
+                self.arr.set_unchecked(value as u16, value);
             }
         }
     }
@@ -49,11 +58,11 @@ impl EmptyLine {
     ///
     /// # Safety
     /// The caller must ensure that the capacity of the array is not exceeded.
-    pub unsafe fn push_unchecked(&mut self, data: u16) {
+    pub unsafe fn push_unchecked(&mut self, data: u16) ->u16{
         // Write the value at the current length index.
-        self.arr.set(data, self.len);
+        self.arr.set_unchecked(data, self.len.load(SeqCst));
         // Increment the length to reflect the new size.
-        self.len += 1;
+        self.len.fetch_add(1, SeqCst) as u16
     }
 
     /// Pushes a value to the array with bounds checking.
@@ -66,13 +75,12 @@ impl EmptyLine {
     /// * `None` - If the array is full.
     pub fn push(&mut self, data: u16) -> Option<u16> {
         // Ensure there's enough capacity to add a new element.
-        if self.len >= self.arr.cap() {
+        if self.len.load(Relaxed) >= self.arr.cap() {
             return None;
         }
 
         // Safely push the value.
-        unsafe { self.push_unchecked(data); }
-        return Some((self.len - 1) as u16) // Return the index where the value was inserted.
+        return Some(unsafe { self.push_unchecked(data)}) // Return the index where the value was inserted.
     }
 
     /// Pops the last value from the array.
@@ -82,12 +90,12 @@ impl EmptyLine {
     ///
     /// # Safety
     /// Caller must ensure the array is not empty before calling this function.
-    pub fn pop(&mut self) -> Option<u16> {
-        match self.len {
+    pub fn pop(&mut self) -> Option<ManuallyDrop<u16>> {
+        match self.len.load(SeqCst) {
             0 =>{ return None;},
-            _ =>{
-                let result = unsafe { self.arr.get(self.len) };
-                self.len -= 1;
+            x =>{
+                let result = unsafe { self.arr.get_unchecked(x) };
+                self.len.fetch_sub(1, SeqCst);
                 return Some(result);
             }
         }

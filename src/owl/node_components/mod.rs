@@ -1,5 +1,5 @@
 #![allow(unused)]
-
+// #![feature(ptr_as_ref_unchecked)]
 
  mod empty_line;
  mod link;
@@ -16,6 +16,7 @@ pub use link::Link;
 pub use entity::Entity;
 pub use hash_store::HashTable;
 pub use data_line::DataLine;
+
 
 pub struct Meta{
     /// Store no of reads
@@ -36,4 +37,3 @@ impl Meta {
         Meta { reads: 0, writes: (0), unset: (0), len: (0) }
     }
 }
-

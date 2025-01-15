@@ -1,6 +1,15 @@
-use crate::owl::array::Array;
-use crate::owl::node_components::{Meta,MAP_SIZE};
+// #! [feature(ptr_as_ref_unchecked)]
 
+use crate::owl::array::Array;
+use crate::owl::node_components::{
+    Meta,
+    MAP_SIZE
+};
+
+use std::ops::{
+    Index,
+    IndexMut
+};
 
 pub struct HashTable{
     ///meta data
@@ -22,6 +31,23 @@ impl HashTable{
         HashTable{
             meta:meta,
             hash:arr
+        }
+    }
+}
+
+impl Index<u16> for HashTable  {
+    type Output = u16;
+    fn index(&self, index: u16) -> &Self::Output {
+        unsafe {
+            self.hash.as_ptr().add(index as usize).as_ref_unchecked()
+        }
+    }
+}
+
+impl IndexMut<u16> for HashTable {
+    fn index_mut(&mut self, index: u16) -> &mut Self::Output {
+        unsafe {
+            self.hash.as_ptr().add(index as usize).as_mut_unchecked()
         }
     }
 }
