@@ -35,7 +35,7 @@ where K:Hash+Ord+PartialOrd+Eq+PartialEq+Clone,V:Clone{
 
     pub fn get_mut(&self,idx:u16)->&mut Entity<K,V>{
         unsafe {
-            self.data.get_mut(idx as usize)   
+            self.data.get_mut(idx as usize)
         }
     }
 
@@ -43,6 +43,10 @@ where K:Hash+Ord+PartialOrd+Eq+PartialEq+Clone,V:Clone{
         unsafe {
             self.data.get_mut(idx as usize)
         }
+    }
+
+    pub fn set_link(&mut self,link:Link,idx:u16){
+        self.get_mut(idx).link = link;
     }
 
 }
