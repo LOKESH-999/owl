@@ -1,2 +1,2 @@
 pub mod owl_ring;
-mod node;
+pub mod node;
