@@ -56,8 +56,45 @@ impl EmptyMap {
         return l3_idx * 64 + (63 - l3_trailing_zeros);
     }
 
-    pub fn return_idx(&mut self,idx : u16){
-        todo!()
+    pub fn return_free_idx(&mut self,idx : u16){
+        let l3_idx = idx >> 6;  // div by 16 
+        let l3_bit_idx = (idx & (63)) as u16; // mod operation `assert_eq(idx & (64 - 1),idx % 64)`
+        match &mut self.l3[l3_idx as usize] {
+            0 =>{
+                let l2_idx = (l3_idx >> 4) & 15; // div by 1024 and calculating mod of 16
+                let l2_bit_idx = (l3_idx & (63)).trailing_zeros() as u16;
+                println!("{},{},{}",l2_idx,idx,l3_idx);
+                match &mut self.l2[l2_idx as usize]{
+                    0 =>{
+                        self.l1 |= 1 << 15;
+                    },
+                    l2_ptr =>{
+                        *l2_ptr |= 1 << l2_bit_idx;
+                    }
+                }
+                match idx {
+                    0 =>{
+                        self.l3[l3_idx as usize] |= 1 << 63
+                    }
+                    _ =>{
+                        self.l3[l3_idx as usize] |= 1<< (63 - l3_bit_idx )
+                    }
+                }
+            }
+            l3_ptr =>{
+                // println!("{},{},{},{}",idx,l3_bit_idx,*l3_ptr,l3_idx);
+                match idx {
+                    0 =>{
+                        *l3_ptr |= 1 << 63
+                    }
+                    _ =>{
+                        // println!("{}",l3_ptr);
+                        *l3_ptr |= 1<< (63 - l3_bit_idx )
+                    }
+                }
+            }
+        }
+        self.count -= 1;
     }
 }
 
