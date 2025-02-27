@@ -10,6 +10,7 @@ use super::super::super::node::NULL_IDX;
 /// # Type Parameters
 /// - `K`: The key type, requiring `Hash`, `Ord`, `PartialOrd`, `Eq`, and `PartialEq`.
 /// - `V`: The value type associated with the key.
+#[derive(Debug)]
 pub struct EntityIter<K, V>
 where
     K: Hash + Ord + PartialOrd + Eq + PartialEq,
