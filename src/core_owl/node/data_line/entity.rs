@@ -87,6 +87,7 @@ where
     ///
     /// # Returns
     /// `true` if the keys match, otherwise `false`.
+    #[inline(always)]
     pub fn is_same_key(&self, key: &K) -> bool {
         &self.key == key
     }
@@ -100,6 +101,7 @@ where
     }
 
     /// Returns a reference to the value stored in the entity.
+    #[inline(always)]
     fn as_ref(&self) -> &V {
         &self.val
     }
@@ -108,6 +110,7 @@ where
     ///
     /// # Arguments
     /// - `val`: The new value to set.
+    #[inline(always)]
     fn set_val(&mut self, val: V) {
         self.val = val;
     }

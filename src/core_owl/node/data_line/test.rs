@@ -18,9 +18,10 @@ pub fn entity_iter_link_based1(){
     }
     arr[9999].link.next = NULL_IDX;
     let mut cur_idx = 2;
-    for val in EntityIter::<u16,u16>::new(NonNull::new( arr.as_mut_ptr() ).unwrap(), cur_idx, false).unwrap().into_iter() {
+    for val in EntityIter::<u16,u16>::new(NonNull::new( arr.as_mut_ptr() ).unwrap(), cur_idx, true).unwrap().into_iter() {
         assert!(val.0.is_same_key(&cur_idx));
         assert!(val.1==cur_idx);
         cur_idx += 1
     }
+    assert!(cur_idx > 5555);
 }

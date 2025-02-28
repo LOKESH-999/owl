@@ -94,10 +94,15 @@ impl<T> UnsafeArray<T> {
     /// 
     /// # Safety
     /// Caller must ensure the index is within bounds to avoid undefined behavior.
+    #[inline(always)]
     pub fn set(&mut self, idx: usize, data: T) {
         unsafe {
             self.ptr.add(idx).write(data); // Write data to the specified index.
         }
+    }
+
+    pub fn as_ptr(&mut self)->*mut T{
+        self.ptr.as_ptr()
     }
 }
 
@@ -111,5 +116,38 @@ impl<T> Drop for UnsafeArray<T> {
         unsafe {
             dealloc(self.ptr.as_ptr() as *mut u8, layout); // Deallocate memory.
         }
+    }
+}
+
+
+/// Implements default initialization for arrays with SIMD optimization.
+///
+/// This is specifically designed for types that are compatible with SIMD.
+impl<T: std::simd::SimdElement> UnsafeArray<T> {
+    /// Initializes the array using SIMD operations with a specified default value.
+    /// # Arguments
+    /// * `default` - The default value to initialize the array with.
+    /// * `size` - The size of the array.
+    pub fn simd_default(default: T, size: usize) -> Self {
+        // Determine the number of elements per SIMD chunk dynamically
+        const SIMD_SIZE: usize = 32;
+        let simd_val = Simd::splat(default); // Initialize SIMD value with `default`
+        let chunk_count = size / SIMD_SIZE;
+        
+        let mut arr = Self::new(size);
+        let ptr = arr.as_ptr();
+
+        // Initialize chunks of SIMD_SIZE elements using SIMD
+        for idx in 0..chunk_count {
+            let simd_ptr = unsafe { ptr.add(idx * SIMD_SIZE) as *mut Simd<T, SIMD_SIZE> };
+            unsafe { simd_ptr.write(simd_val) }; // Write SIMD value to the chunk
+        }
+
+        // Initialize the remaining elements individually.
+        for idx in chunk_count * SIMD_SIZE..size {
+            unsafe { ptr.add(idx).write(default) };
+        }
+
+        arr
     }
 }

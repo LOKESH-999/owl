@@ -11,7 +11,7 @@ impl RingEntity {
     /// 
     /// # Returns
     /// A new `RingEntity` instance with the concentration set to `0`.
-    #[inline]
+    #[inline(always)]
     pub const fn new() -> Self {
         RingEntity {
             concentration: 0,
@@ -20,7 +20,7 @@ impl RingEntity {
 
     /// Increments the concentration value by 1, 
     /// signifying an additional hash now points/hits to this area.
-    #[inline]
+    #[inline(always)]
     pub fn inc(&mut self) {
         self.concentration += 1;
     }
@@ -29,7 +29,7 @@ impl RingEntity {
     ///
     /// # Returns
     /// The number of hashes currently pointing to this area.
-    #[inline]
+    #[inline(always)]
     pub fn get(&self) -> u32 {
         self.concentration
     }
@@ -38,7 +38,7 @@ impl RingEntity {
     ///
     /// # Arguments
     /// * `val` - The new concentration value indicating the number of hashes for this area.
-    #[inline]
+    #[inline(always)]
     pub fn set(&mut self, val: u32) {
         self.concentration = val;
     }
